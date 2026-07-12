@@ -6,6 +6,7 @@
 package com.osfans.trime.data.theme
 
 import android.os.Parcelable
+import com.osfans.trime.data.base.DataManager
 import com.osfans.trime.data.theme.model.ColorScheme
 import com.osfans.trime.data.theme.model.GeneralStyle
 import com.osfans.trime.data.theme.model.LiquidKeyboard
@@ -15,9 +16,11 @@ import com.osfans.trime.data.theme.model.TextKeyboard
 import com.osfans.trime.data.theme.model.ToolBar
 import com.osfans.trime.data.theme.model.Window
 import com.osfans.trime.util.yaml.Node
+import com.osfans.trime.util.yaml.Yaml
 import com.osfans.trime.util.yaml.mapping
 import com.osfans.trime.util.yaml.string
 import kotlinx.parcelize.Parcelize
+import java.io.File
 
 /** 主题和样式配置  */
 @Parcelize
@@ -34,6 +37,12 @@ data class Theme(
     val toolBar: ToolBar,
 ) : Parcelable {
     companion object {
+        fun decodeByConfigId(configId: String): Theme {
+            val file = File(DataManager.resolveDeployedResourcePath(configId))
+            val node = Yaml.parseToYamlNode(file.readText()).mapping!!
+            return decode(node)
+        }
+
         fun decode(node: Node.Mapping): Theme = Theme(
             name = node["name"]?.string!!,
             generalStyle = GeneralStyle.decode(node["style"]!!),

@@ -18,7 +18,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class GeneralStyle(
-    val autoCaps: Boolean,
+    val autoCaps: String,
     val candidateBorder: Int,
     val candidateBorderRound: Float,
     val candidateFont: List<String>,
@@ -30,6 +30,7 @@ data class GeneralStyle(
     val candidateCornerRadius: Float,
     val commentFont: List<String>,
     val commentHeight: Int,
+    val commentOnTop: Boolean,
     val commentPosition: CommentPosition,
     val commentTextSize: Float,
     val commentVerticalBias: Float,
@@ -60,6 +61,11 @@ data class GeneralStyle(
     val latinFont: List<String>,
     val keyboardHeight: Int,
     val keyboardHeightLand: Int,
+    val previewFont: String,
+    val previewHeight: Int,
+    val previewOffset: Int,
+    val previewTextSize: Float,
+    val proximityCorrection: Boolean,
     val popupBottomMargin: Int,
     val popupWidth: Int,
     val popupHeight: Int,
@@ -72,11 +78,15 @@ data class GeneralStyle(
     val symbolFont: List<String>,
     val symbolTextSize: Float,
     val textFont: List<String>,
+    val verticalCorrection: Float,
     val verticalGap: Int,
     val backgroundFolder: String,
     val enterLabelMode: Int,
     val enterLabel: EnterLabel,
 ) : Parcelable {
+    val isAutoCapsEnabled: Boolean
+        get() = autoCaps.equals("true", ignoreCase = true) || autoCaps.equals("ascii", ignoreCase = true)
+
     enum class CommentPosition {
         RIGHT,
         TOP,
@@ -108,24 +118,23 @@ data class GeneralStyle(
 
     companion object {
         fun decode(node: Node): GeneralStyle = GeneralStyle(
-            autoCaps = node["auto_caps"]?.boolean ?: false,
+            autoCaps = node["auto_caps"]?.string.orEmpty(),
             candidateBorder = node["candidate_border"]?.int ?: 0,
             candidateBorderRound = node["candidate_border_round"]?.float ?: 0f,
-            candidateFont = node["candidate_font"]?.sequence?.mapNotNull { it.string } ?: emptyList(),
+            candidateFont = node["candidate_font"].stringList(),
             candidatePadding = node["candidate_padding"]?.int ?: 0,
             candidateSpacing = node["candidate_spacing"]?.float ?: 0f,
             candidateTextSize = node["candidate_text_size"]?.float ?: 15f,
             candidateTextVerticalBias = node["candidate_text_vertical_bias"]?.float ?: 1f,
             candidateViewHeight = node["candidate_view_height"]?.int ?: 28,
             candidateCornerRadius = node["candidate_corner_radius"]?.float ?: 5f,
-            commentFont = node["comment_font"]?.sequence
-                ?.mapNotNull(Node::string) ?: emptyList(),
+            commentFont = node["comment_font"].stringList(),
             commentHeight = node["comment_height"]?.int ?: 12,
+            commentOnTop = node["comment_on_top"]?.boolean ?: false,
             commentPosition = node["comment_position"]?.enum<CommentPosition>() ?: CommentPosition.RIGHT,
             commentTextSize = node["comment_text_size"]?.float ?: 10f,
             commentVerticalBias = node["comment_vertical_bias"]?.float ?: 0f,
-            hanbFont = node["hanb_font"]?.sequence
-                ?.mapNotNull(Node::string) ?: emptyList(),
+            hanbFont = node["hanb_font"].stringList(),
             horizontalGap = node["horizontal_gap"]?.int ?: 0,
             keyboardPadding = node["keyboard_padding"]?.int ?: 0,
             keyboardPaddingLeft = node["keyboard_padding_left"]?.int ?: 0,
@@ -133,8 +142,7 @@ data class GeneralStyle(
             keyboardPaddingBottom = node["keyboard_padding_bottom"]?.int ?: 0,
             keyboardPaddingLand = node["keyboard_padding_land"]?.int ?: 0,
             keyboardPaddingLandBottom = node["keyboard_padding_land_bottom"]?.int ?: 0,
-            keyFont = node["key_font"]?.sequence
-                ?.mapNotNull(Node::string) ?: emptyList(),
+            keyFont = node["key_font"].stringList(),
             keyBorder = node["key_border"]?.int ?: 0,
             keyHeight = node["key_height"]?.int ?: 0,
             keyLongTextSize = node["key_long_text_size"]?.float ?: 15f,
@@ -149,27 +157,28 @@ data class GeneralStyle(
             keyPressOffsetY = node["key_press_offset_y"]?.float ?: 0f,
             keyWidth = node["key_width"]?.float ?: 0f,
             labelTextSize = node["label_text_size"]?.float ?: 0f,
-            labelFont = node["label_font"]?.sequence
-                ?.mapNotNull(Node::string) ?: emptyList(),
-            latinFont = node["latin_font"]?.sequence
-                ?.mapNotNull(Node::string) ?: emptyList(),
+            labelFont = node["label_font"].stringList(),
+            latinFont = node["latin_font"].stringList(),
             keyboardHeight = node["keyboard_height"]?.int ?: 0,
             keyboardHeightLand = node["keyboard_height_land"]?.int ?: 0,
+            previewFont = node["preview_font"]?.string.orEmpty(),
+            previewHeight = node["preview_height"]?.int ?: 0,
+            previewOffset = node["preview_offset"]?.int ?: -12,
+            previewTextSize = node["preview_text_size"]?.float ?: 0f,
+            proximityCorrection = node["proximity_correction"]?.boolean ?: false,
             popupBottomMargin = node["popup_bottom_margin"]?.int ?: 0,
             popupWidth = node["popup_width"]?.int ?: 0,
             popupHeight = node["popup_height"]?.int ?: 0,
             popupKeyHeight = node["popup_key_height"]?.int ?: 0,
-            popupFont = node["popup_font"]?.sequence
-                ?.mapNotNull(Node::string) ?: emptyList(),
+            popupFont = node["popup_font"].stringList(),
             popupTextSize = node["popup_text_size"]?.float ?: 0f,
             resetAsciiModeOnFocusChange = node["reset_ascii_mode_on_focus_change"]?.boolean ?: false,
             roundCorner = node["round_corner"]?.float ?: 0f,
             shadowRadius = node["shadow_radius"]?.float ?: 0f,
-            symbolFont = node["symbol_font"]?.sequence
-                ?.mapNotNull(Node::string) ?: emptyList(),
+            symbolFont = node["symbol_font"].stringList(),
             symbolTextSize = node["symbol_text_size"]?.float ?: 0f,
-            textFont = node["text_font"]?.sequence
-                ?.mapNotNull(Node::string) ?: emptyList(),
+            textFont = node["text_font"].stringList(),
+            verticalCorrection = node["vertical_correction"]?.float ?: -10f,
             verticalGap = node["vertical_gap"]?.int ?: 0,
             backgroundFolder = node["background_folder"]?.string ?: "backgrounds",
             enterLabelMode = node["enter_label_mode"]?.int ?: 0,
@@ -177,3 +186,7 @@ data class GeneralStyle(
         )
     }
 }
+
+private fun Node?.stringList(): List<String> = this?.sequence?.mapNotNull(Node::string)
+    ?: this?.string?.let(::listOf)
+    ?: emptyList()

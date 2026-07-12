@@ -21,8 +21,13 @@ import timber.log.Timber
 
 @Parcelize
 data class LiquidKeyboard(
+    val author: String,
+    val row: Int,
+    val rowLand: Int,
     val singleWidth: Int,
     val keyHeight: Int,
+    val keyHeightLand: Int,
+    val verticalGap: Int,
     val marginX: Float,
     val fixedKeyBar: KeyBar,
     val keyboards: List<Keyboard>,
@@ -120,8 +125,13 @@ data class LiquidKeyboard(
                         }
                     }?.toList() ?: emptyList()
             return LiquidKeyboard(
+                author = node?.get("author")?.string.orEmpty(),
+                row = node?.get("row")?.int ?: 0,
+                rowLand = node?.get("row_land")?.int ?: 0,
                 singleWidth = node?.get("single_width")?.int ?: 0,
                 keyHeight = node?.get("key_height")?.int ?: 0,
+                keyHeightLand = node?.get("key_height_land")?.int ?: 0,
+                verticalGap = node?.get("vertical_gap")?.int ?: 0,
                 marginX = node?.get("margin_x")?.float ?: 0f,
                 fixedKeyBar = keyBar,
                 keyboards = keyboards,
